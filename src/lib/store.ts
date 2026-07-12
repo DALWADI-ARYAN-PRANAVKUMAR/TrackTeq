@@ -32,6 +32,12 @@ interface State {
   theme: "dark" | "light";
   reducedMotion: boolean;
   login: (email: string, pass: string) => Promise<{ ok: boolean; error?: string }>;
+  register: (
+    email: string,
+    pass: string,
+    fullName: string,
+    role: "Fleet Manager" | "Driver" | "Safety Officer" | "Financial Analyst",
+  ) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
   setTheme: (t: "dark" | "light") => void;
   setReducedMotion: (v: boolean) => void;
@@ -73,122 +79,175 @@ export const useStore = create<State>()(
       reducedMotion: false,
 
       login: async (email, pass) => {
-        const roleMap: Record<string, any> = {
-          "fleet@transitops.com": "Fleet Manager",
-          "driver@transitops.com": "Driver",
-          "safety@transitops.com": "Safety Officer",
-          "finance@transitops.com": "Financial Analyst",
-        };
-        const user = {
-          email,
-          name: email.split("@")[0].toUpperCase(),
-          role: roleMap[email] || "Fleet Manager",
-        };
-        set({ session: user });
-        return { ok: true };
+        try {
+          const { user } = await api.login(email, pass);
+          set({ session: user });
+          await get().sync();
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to log in" };
+        }
+      },
+      register: async (email, pass, fullName, role) => {
+        try {
+          const { user } = await api.register(email, pass, fullName, role);
+          set({ session: user });
+          await get().sync();
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to create account" };
+        }
       },
       logout: () => {
         clearToken();
         set({
           session: null,
-          vehicles: seedVehicles,
-          drivers: seedDrivers,
-          trips: seedTrips,
-          maintenance: seedMaintenance,
-          fuel: seedFuel,
-          expenses: seedExpenses,
+          vehicles: [],
+          drivers: [],
+          trips: [],
+          maintenance: [],
+          fuel: [],
+          expenses: [],
         });
       },
       setTheme: (t) => set({ theme: t }),
       setReducedMotion: (v) => set({ reducedMotion: v }),
 
       sync: async () => {
-        // Local mode: do nothing. Persisted state handles everything.
+        try {
+          const [vehicles, drivers, trips, maintenance, fuel, expenses] = await Promise.all([
+            api.getVehicles(),
+            api.getDrivers(),
+            api.getTrips(),
+            api.getMaintenance(),
+            api.getFuelLogs(),
+            api.getExpenses(),
+          ]);
+          set({ vehicles, drivers, trips, maintenance, fuel, expenses });
+        } catch (e) {
+          console.error("Sync failed:", e);
+        }
       },
 
       addVehicle: async (v) => {
-        const newV = { ...v, id: Math.random().toString(36).slice(2) } as Vehicle;
-        set((s) => ({ vehicles: [newV, ...s.vehicles] }));
-        return { ok: true };
+        try {
+          const newV = await api.createVehicle(v);
+          set((s) => ({ vehicles: [newV, ...s.vehicles] }));
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to register vehicle" };
+        }
       },
       updateVehicle: async (id, patch) => {
-        set((s) => ({ vehicles: s.vehicles.map((v) => (v.id === id ? { ...v, ...patch } : v)) }));
-        return { ok: true };
+        try {
+          const updatedV = await api.updateVehicle(id, patch);
+          set((s) => ({ vehicles: s.vehicles.map((v) => (v.id === id ? updatedV : v)) }));
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to update vehicle" };
+        }
       },
       removeVehicle: async (id) => {
-        set((s) => ({ vehicles: s.vehicles.filter((v) => v.id !== id) }));
-        return { ok: true };
+        try {
+          await api.deleteVehicle(id);
+          set((s) => ({ vehicles: s.vehicles.filter((v) => v.id !== id) }));
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to delete vehicle" };
+        }
       },
 
       addDriver: async (d) => {
-        const newD = { ...d, id: Math.random().toString(36).slice(2) } as Driver;
-        set((s) => ({ drivers: [newD, ...s.drivers] }));
-        return { ok: true };
+        try {
+          const newD = await api.createDriver(d);
+          set((s) => ({ drivers: [newD, ...s.drivers] }));
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to add driver" };
+        }
       },
       updateDriver: async (id, patch) => {
-        set((s) => ({ drivers: s.drivers.map((d) => (d.id === id ? { ...d, ...patch } : d)) }));
-        return { ok: true };
+        try {
+          const updatedD = await api.updateDriver(id, patch);
+          set((s) => ({ drivers: s.drivers.map((d) => (d.id === id ? updatedD : d)) }));
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to update driver" };
+        }
       },
       removeDriver: async (id) => {
-        set((s) => ({ drivers: s.drivers.filter((d) => d.id !== id) }));
-        return { ok: true };
+        try {
+          await api.deleteDriver(id);
+          set((s) => ({ drivers: s.drivers.filter((d) => d.id !== id) }));
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to delete driver" };
+        }
       },
 
       createTrip: async (t) => {
-        const id = Math.random().toString(36).slice(2);
-        const newT: Trip = {
-          ...t,
-          id,
-          code: "TRP-" + id.slice(0, 4).toUpperCase(),
-          status: "Draft",
-          createdAt: new Date().toISOString(),
-        };
-        set((s) => ({ trips: [newT, ...s.trips] }));
-        return { ok: true, id };
+        try {
+          const newTrip = await api.createTrip(t);
+          set((s) => ({ trips: [newTrip, ...s.trips] }));
+          return { ok: true, id: newTrip.id };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to create trip" };
+        }
       },
       setTripStatus: async (id, status, extra) => {
-        set((s) => ({
-          trips: s.trips.map((t) => {
-            if (t.id === id) {
-              const base = { ...t, status };
-              if (status === "Dispatched") base.dispatchedAt = new Date().toISOString();
-              if (status === "Completed") base.completedAt = new Date().toISOString();
-              if (extra) Object.assign(base, extra);
-              return base;
-            }
-            return t;
-          }),
-        }));
-        return { ok: true };
+        try {
+          if (status === "Dispatched") {
+            await api.dispatchTrip(id);
+          } else if (status === "Completed") {
+            const actualKm = extra?.actualKm ?? 0;
+            const fuelLiters = extra?.fuelLiters ?? 0;
+            await api.completeTrip(id, actualKm, fuelLiters);
+          } else if (status === "Cancelled") {
+            await api.cancelTrip(id);
+          }
+          await get().sync();
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to update trip status" };
+        }
       },
 
       openMaintenance: async (m) => {
-        const newM: MaintenanceLog = {
-          ...m,
-          id: Math.random().toString(36).slice(2),
-          openedAt: new Date().toISOString(),
-        };
-        set((s) => ({ maintenance: [newM, ...s.maintenance] }));
-        return { ok: true };
+        try {
+          await api.openMaintenance(m.vehicleId, m.notes || m.type, m.cost);
+          await get().sync();
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to open maintenance log" };
+        }
       },
       closeMaintenance: async (id) => {
-        set((s) => ({
-          maintenance: s.maintenance.map((m) =>
-            m.id === id ? { ...m, closedAt: new Date().toISOString() } : m
-          ),
-        }));
-        return { ok: true };
+        try {
+          await api.closeMaintenance(id);
+          await get().sync();
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to close maintenance log" };
+        }
       },
 
       addFuel: async (f) => {
-        const newF: FuelLog = { ...f, id: Math.random().toString(36).slice(2) };
-        set((s) => ({ fuel: [newF, ...s.fuel] }));
-        return { ok: true };
+        try {
+          const newFuel = await api.createFuelLog(f);
+          set((s) => ({ fuel: [newFuel, ...s.fuel] }));
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to log fuel" };
+        }
       },
       addExpense: async (e) => {
-        const newE: Expense = { ...e, id: Math.random().toString(36).slice(2) };
-        set((s) => ({ expenses: [newE, ...s.expenses] }));
-        return { ok: true };
+        try {
+          const newExpense = await api.createExpense(e);
+          set((s) => ({ expenses: [newExpense, ...s.expenses] }));
+          return { ok: true };
+        } catch (e: any) {
+          return { ok: false, error: e.message || "Failed to add expense" };
+        }
       },
 
       resetDemo: () => {

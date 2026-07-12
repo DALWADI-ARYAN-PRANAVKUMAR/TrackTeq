@@ -26,37 +26,49 @@ const roles: { role: Role; icon: typeof Truck; blurb: string }[] = [
 ];
 
 function Login() {
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("fleet@transitops.com");
   const [pw, setPw] = useState("fleet123");
   const [role, setRoleState] = useState<Role>("Fleet Manager");
   const login = useStore((s) => s.login);
+  const register = useStore((s) => s.register);
   const navigate = useNavigate();
 
   const setRole = (r: Role) => {
     setRoleState(r);
-    if (r === "Fleet Manager") {
-      setEmail("fleet@transitops.com");
-      setPw("fleet123");
-    } else if (r === "Driver") {
-      setEmail("driver@transitops.com");
-      setPw("driver123");
-    } else if (r === "Safety Officer") {
-      setEmail("safety@transitops.com");
-      setPw("safety123");
-    } else if (r === "Financial Analyst") {
-      setEmail("finance@transitops.com");
-      setPw("finance123");
+    if (!isSignUp) {
+      if (r === "Fleet Manager") {
+        setEmail("fleet@transitops.com");
+        setPw("fleet123");
+      } else if (r === "Driver") {
+        setEmail("driver@transitops.com");
+        setPw("driver123");
+      } else if (r === "Safety Officer") {
+        setEmail("safety@transitops.com");
+        setPw("safety123");
+      } else if (r === "Financial Analyst") {
+        setEmail("finance@transitops.com");
+        setPw("finance123");
+      }
     }
   };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const r = await login(email, pw);
+    if (isSignUp && !fullName.trim()) {
+      toast.error("Please enter your full name");
+      return;
+    }
+    const r = isSignUp
+      ? await register(email, pw, fullName, role)
+      : await login(email, pw);
+      
     if (r.ok) {
-      toast.success("Welcome to TransitOps terminal");
+      toast.success(isSignUp ? "Account created successfully" : "Welcome to TransitOps terminal");
       navigate({ to: "/" });
     } else {
-      toast.error(r.error || "Login failed");
+      toast.error(r.error || (isSignUp ? "Registration failed" : "Login failed"));
     }
   };
 
@@ -112,9 +124,11 @@ function Login() {
             className="w-full rounded-sm border border-border bg-panel p-6 md:p-8 shadow-2xl"
           >
             <div className="micro-label">Authentication</div>
-            <h2 className="mt-1 font-display text-2xl font-semibold">Access terminal</h2>
+            <h2 className="mt-1 font-display text-2xl font-semibold">
+              {isSignUp ? "Create account" : "Access terminal"}
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Select role and sign in with your credentials.
+              {isSignUp ? "Select your role and create a new account." : "Select role and sign in with your credentials."}
             </p>
 
             <div className="mt-6 grid grid-cols-2 gap-2">
@@ -143,6 +157,20 @@ function Login() {
             </div>
 
             <div className="mt-6 space-y-3">
+              {isSignUp && (
+                <div>
+                  <Label htmlFor="fullName" className="micro-label">
+                    Full Name
+                  </Label>
+                  <Input
+                    id="fullName"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Enter your full name"
+                    className="mt-1 font-mono"
+                  />
+                </div>
+              )}
               <div>
                 <Label htmlFor="email" className="micro-label">
                   Email
@@ -172,10 +200,27 @@ function Login() {
               type="submit"
               className="mt-6 w-full h-11 font-mono uppercase tracking-widest text-xs"
             >
-              Enter terminal →
+              {isSignUp ? "Create Account & Enter →" : "Enter terminal →"}
             </Button>
-            <div className="mt-4 text-center text-[10px] font-mono text-muted-foreground">
-              DEMO MODE · any credentials accepted
+
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setFullName("");
+                  if (!isSignUp) {
+                    setEmail("");
+                    setPw("");
+                  } else {
+                    setEmail("fleet@transitops.com");
+                    setPw("fleet123");
+                  }
+                }}
+                className="text-xs font-mono text-primary hover:underline"
+              >
+                {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Create Account"}
+              </button>
             </div>
           </form>
         </div>

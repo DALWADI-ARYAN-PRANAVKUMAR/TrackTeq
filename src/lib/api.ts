@@ -224,6 +224,32 @@ export const api = {
     };
   },
 
+  async register(
+    email: string,
+    pass: string,
+    fullName: string,
+    role: "Fleet Manager" | "Driver" | "Safety Officer" | "Financial Analyst",
+  ): Promise<{ token: string; user: Session }> {
+    const roleMap: Record<string, string> = {
+      "Fleet Manager": "fleet_manager",
+      "Driver": "driver",
+      "Safety Officer": "safety_officer",
+      "Financial Analyst": "financial_analyst",
+    };
+
+    await request("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        password: pass,
+        full_name: fullName,
+        role: roleMap[role] || "driver",
+      }),
+    });
+
+    return this.login(email, pass);
+  },
+
   async getMe(): Promise<Session> {
     const data = await request("/auth/me");
     const roleMap: Record<string, any> = {
