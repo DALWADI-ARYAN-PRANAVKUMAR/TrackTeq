@@ -33,21 +33,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router)
-app.include_router(vehicles_router)
-app.include_router(drivers_router)
-app.include_router(trips_router)
-app.include_router(maintenance_router)
-app.include_router(fuel_expense_router)
-app.include_router(dashboard_router)
-app.include_router(reports_router)
+from fastapi import APIRouter
 
+api_router = APIRouter(prefix="/api")
+api_router.include_router(auth_router)
+api_router.include_router(vehicles_router)
+api_router.include_router(drivers_router)
+api_router.include_router(trips_router)
+api_router.include_router(maintenance_router)
+api_router.include_router(fuel_expense_router)
+api_router.include_router(dashboard_router)
+api_router.include_router(reports_router)
 
-@app.get("/", tags=["Health"])
+@api_router.get("/", tags=["Health"])
 def root():
     return {"status": "ok", "service": "TransitOps API"}
 
-
-@app.get("/health", tags=["Health"])
+@api_router.get("/health", tags=["Health"])
 def health():
     return {"status": "healthy"}
+
+app.include_router(api_router)
