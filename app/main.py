@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
@@ -15,6 +15,7 @@ from app.routers.maintenance import router as maintenance_router
 from app.routers.fuel_expense import router as fuel_expense_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.reports import router as reports_router
+from app.routers.locations import router as locations_router
 
 # Create tables (hackathon-speed: no Alembic migration needed to get started)
 Base.metadata.create_all(bind=engine)
@@ -33,8 +34,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from fastapi import APIRouter
-
 api_router = APIRouter(prefix="/api")
 api_router.include_router(auth_router)
 api_router.include_router(vehicles_router)
@@ -44,13 +43,17 @@ api_router.include_router(maintenance_router)
 api_router.include_router(fuel_expense_router)
 api_router.include_router(dashboard_router)
 api_router.include_router(reports_router)
+api_router.include_router(locations_router)
+
 
 @api_router.get("/", tags=["Health"])
 def root():
     return {"status": "ok", "service": "TrackTeq API"}
 
+
 @api_router.get("/health", tags=["Health"])
 def health():
     return {"status": "healthy"}
+
 
 app.include_router(api_router)
