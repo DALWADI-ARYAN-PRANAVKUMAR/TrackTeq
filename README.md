@@ -1,4 +1,4 @@
-# TrackTeq — Backend API
+# Trackteq — Backend API
 
 Smart Transport Operations Platform backend. Built with **FastAPI + SQLAlchemy** for the 8-hour hackathon.
 
@@ -9,7 +9,7 @@ Frontend team: point your app at `http://localhost:8000`. Full interactive API d
 ## 1. Setup (2 minutes)
 
 ```bash
-cd trackteq-backend
+cd TrackTeq
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 

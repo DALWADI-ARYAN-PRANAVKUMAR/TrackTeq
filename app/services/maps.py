@@ -4,7 +4,7 @@ import httpx
 
 Coordinate = Tuple[float, float]
 
-USER_AGENT = "TransitOps/1.0 (OpenStreetMap Nominatim)"
+USER_AGENT = "Trackteq/1.0 (OpenStreetMap Nominatim)"
 
 
 def get_coordinates(address: str) -> Optional[Coordinate]:

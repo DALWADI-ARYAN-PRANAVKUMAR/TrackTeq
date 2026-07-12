@@ -21,7 +21,7 @@ from app.routers.locations import router as locations_router
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="TrackTeq API",
+    title="Trackteq API",
     description="Smart Transport Operations Platform - Backend API",
     version="1.0.0",
 )
@@ -48,7 +48,7 @@ api_router.include_router(locations_router)
 
 @api_router.get("/", tags=["Health"])
 def root():
-    return {"status": "ok", "service": "TrackTeq API"}
+    return {"status": "ok", "service": "Trackteq API"}
 
 
 @api_router.get("/health", tags=["Health"])

@@ -1,5 +1,5 @@
 """
-Centralized business rules for TrackTeq.
+Centralized business rules for Trackteq.
 
 Every status transition and cross-entity validation described in Section 4
 of the spec lives here, so no router can accidentally bypass a rule.
