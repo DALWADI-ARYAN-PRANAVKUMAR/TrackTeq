@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Vehicle, Driver, Trip, MaintenanceLog, FuelLog, Expense, Session } from "./types";
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 let authToken =
   typeof window !== "undefined" ? window.localStorage.getItem("transitops_auth_token") : null;
