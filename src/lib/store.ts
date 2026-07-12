@@ -246,6 +246,6 @@ export const useStore = create<State>()(
         get().sync();
       },
     }),
-    { name: "transitops-v3-live" },
+    { name: "trackteq-v3-live" },
   ),
 );

@@ -15,11 +15,11 @@ Base.metadata.create_all(bind=engine)
 db = SessionLocal()
 
 DEMO_USERS = [
-    {"full_name": "Admin User", "email": "admin@transitops.com", "password": "admin123", "role": RoleName.ADMIN},
-    {"full_name": "Fleet Manager", "email": "fleet@transitops.com", "password": "fleet123", "role": RoleName.FLEET_MANAGER},
-    {"full_name": "Driver Dan", "email": "driver@transitops.com", "password": "driver123", "role": RoleName.DRIVER},
-    {"full_name": "Safety Officer", "email": "safety@transitops.com", "password": "safety123", "role": RoleName.SAFETY_OFFICER},
-    {"full_name": "Finance Analyst", "email": "finance@transitops.com", "password": "finance123", "role": RoleName.FINANCIAL_ANALYST},
+    {"full_name": "Admin User", "email": "admin@trackteq.com", "password": "admin123", "role": RoleName.ADMIN},
+    {"full_name": "Fleet Manager", "email": "fleet@trackteq.com", "password": "fleet123", "role": RoleName.FLEET_MANAGER},
+    {"full_name": "Driver Dan", "email": "driver@trackteq.com", "password": "driver123", "role": RoleName.DRIVER},
+    {"full_name": "Safety Officer", "email": "safety@trackteq.com", "password": "safety123", "role": RoleName.SAFETY_OFFICER},
+    {"full_name": "Finance Analyst", "email": "finance@trackteq.com", "password": "finance123", "role": RoleName.FINANCIAL_ANALYST},
 ]
 
 DEMO_VEHICLES = [

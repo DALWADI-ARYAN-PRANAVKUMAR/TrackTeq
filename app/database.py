@@ -7,7 +7,7 @@ from app.config import settings
 db_url = settings.DATABASE_URL
 # Vercel's file system is read-only except for /tmp.
 if os.environ.get("VERCEL") and db_url.startswith("sqlite"):
-    db_url = "sqlite:////tmp/transitops.db"
+    db_url = "sqlite:////tmp/trackteq.db"
 
 # check_same_thread is only needed for SQLite
 connect_args = {"check_same_thread": False} if db_url.startswith("sqlite") else {}

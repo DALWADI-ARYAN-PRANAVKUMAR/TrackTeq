@@ -1,4 +1,4 @@
-# TransitOps — Backend API
+# TrackTeq — Backend API
 
 Smart Transport Operations Platform backend. Built with **FastAPI + SQLAlchemy** for the 8-hour hackathon.
 
@@ -9,7 +9,7 @@ Frontend team: point your app at `http://localhost:8000`. Full interactive API d
 ## 1. Setup (2 minutes)
 
 ```bash
-cd transitops-backend
+cd trackteq-backend
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 
@@ -27,11 +27,11 @@ Open **http://localhost:8000/docs** — that's your Swagger playground.
 
 | Email | Password | Role |
 |---|---|---|
-| admin@transitops.com | admin123 | admin (bypasses all RBAC checks) |
-| fleet@transitops.com | fleet123 | fleet_manager |
-| driver@transitops.com | driver123 | driver |
-| safety@transitops.com | safety123 | safety_officer |
-| finance@transitops.com | finance123 | financial_analyst |
+| admin@trackteq.com | admin123 | admin (bypasses all RBAC checks) |
+| fleet@trackteq.com | fleet123 | fleet_manager |
+| driver@trackteq.com | driver123 | driver |
+| safety@trackteq.com | safety123 | safety_officer |
+| finance@trackteq.com | finance123 | financial_analyst |
 
 Seed also creates 3 vehicles (incl. `GJ-01-VAN-05`, 500kg capacity — matches spec walkthrough) and 3 drivers (incl. `Alex` with valid license, and `Priya` with a deliberately **expired** license for testing rule enforcement).
 
@@ -77,7 +77,7 @@ OAuth2 password flow. Get a token, then send `Authorization: Bearer <token>` on 
 ```bash
 curl -X POST http://localhost:8000/auth/login-json \
   -H "Content-Type: application/json" \
-  -d '{"email":"fleet@transitops.com","password":"fleet123"}'
+  -d '{"email":"fleet@trackteq.com","password":"fleet123"}'
 ```
 
 Response: `{ "access_token": "...", "token_type": "bearer", "user": {...} }`

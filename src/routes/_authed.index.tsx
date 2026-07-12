@@ -38,7 +38,7 @@ import { INDIAN_STATES } from "@/lib/india";
 export const Route = createFileRoute("/_authed/")({
   head: () => ({
     meta: [
-      { title: "Dashboard — TransitOps" },
+      { title: "Dashboard — TrackTeq" },
       { name: "description", content: "Live fleet KPIs, active dispatch and operational alerts." },
     ],
   }),

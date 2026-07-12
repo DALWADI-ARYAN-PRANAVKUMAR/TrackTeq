@@ -20,7 +20,7 @@ import {
 } from "recharts";
 
 export const Route = createFileRoute("/_authed/reports")({
-  head: () => ({ meta: [{ title: "Reports — TransitOps" }] }),
+  head: () => ({ meta: [{ title: "Reports — TrackTeq" }] }),
   component: Reports,
 });
 

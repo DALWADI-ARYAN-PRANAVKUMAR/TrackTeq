@@ -66,7 +66,7 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div className="flex flex-col leading-tight">
-              <span className="font-display text-sm font-semibold tracking-tight">TRANSITOPS</span>
+              <span className="font-display text-sm font-semibold tracking-tight">TRACKTEQ</span>
               <span className="micro-label text-[9px]">FLEET // OPS TERMINAL</span>
             </div>
           )}

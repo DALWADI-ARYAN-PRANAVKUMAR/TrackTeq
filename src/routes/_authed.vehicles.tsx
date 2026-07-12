@@ -29,7 +29,7 @@ import { StateCityFilter } from "@/components/state-city-filter";
 import { INDIAN_STATES } from "@/lib/india";
 
 export const Route = createFileRoute("/_authed/vehicles")({
-  head: () => ({ meta: [{ title: "Vehicles — TransitOps" }] }),
+  head: () => ({ meta: [{ title: "Vehicles — TrackTeq" }] }),
   component: VehiclesPage,
 });
 

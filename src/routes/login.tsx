@@ -11,8 +11,8 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "TransitOps — Sign in" },
-      { name: "description", content: "Sign in to the TransitOps fleet operations terminal." },
+      { title: "TrackTeq — Sign in" },
+      { name: "description", content: "Sign in to the TrackTeq fleet operations terminal." },
     ],
   }),
   component: Login,
@@ -54,7 +54,7 @@ function Login() {
       : await login(email, pw);
       
     if (r.ok) {
-      toast.success(isSignUp ? "Account created successfully" : "Welcome to TransitOps terminal");
+      toast.success(isSignUp ? "Account created successfully" : "Welcome to TrackTeq terminal");
       navigate({ to: "/" });
     } else {
       toast.error(r.error || (isSignUp ? "Registration failed" : "Login failed"));
@@ -72,7 +72,7 @@ function Login() {
               <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             </div>
             <div>
-              <div className="font-display text-sm font-semibold tracking-tight">TRANSITOPS</div>
+              <div className="font-display text-sm font-semibold tracking-tight">TRACKTEQ</div>
               <div className="micro-label text-[9px]">FLEET // OPS TERMINAL v1.4</div>
             </div>
           </div>

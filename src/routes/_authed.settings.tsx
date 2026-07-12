@@ -7,7 +7,7 @@ import type { Role } from "@/lib/types";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authed/settings")({
-  head: () => ({ meta: [{ title: "Settings — TransitOps" }] }),
+  head: () => ({ meta: [{ title: "Settings — TrackTeq" }] }),
   component: Settings,
 });
 

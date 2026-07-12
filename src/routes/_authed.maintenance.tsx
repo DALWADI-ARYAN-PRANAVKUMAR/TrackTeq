@@ -24,7 +24,7 @@ import { Plus, Wrench } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authed/maintenance")({
-  head: () => ({ meta: [{ title: "Maintenance — TransitOps" }] }),
+  head: () => ({ meta: [{ title: "Maintenance — TrackTeq" }] }),
   component: MaintPage,
 });
 

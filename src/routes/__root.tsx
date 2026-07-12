@@ -73,14 +73,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "TransitOps — Fleet Operations Terminal" },
+      { title: "TrackTeq — Fleet Operations Terminal" },
       {
         name: "description",
         content:
           "Smart transport operations platform: vehicles, drivers, dispatch, maintenance, fuel, and analytics in one command center.",
       },
-      { name: "author", content: "TransitOps" },
-      { property: "og:title", content: "TransitOps — Fleet Operations Terminal" },
+      { name: "author", content: "TrackTeq" },
+      { property: "og:title", content: "TrackTeq — Fleet Operations Terminal" },
       {
         property: "og:description",
         content: "Dispatch, monitor and move freight from a single operational surface.",

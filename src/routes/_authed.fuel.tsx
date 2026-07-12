@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { exportCSV } from "@/lib/csv";
 
 export const Route = createFileRoute("/_authed/fuel")({
-  head: () => ({ meta: [{ title: "Fuel & Expenses — TransitOps" }] }),
+  head: () => ({ meta: [{ title: "Fuel & Expenses — TrackTeq" }] }),
   component: FuelPage,
 });
 

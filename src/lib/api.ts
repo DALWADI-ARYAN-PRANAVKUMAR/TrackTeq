@@ -4,19 +4,19 @@ import type { Vehicle, Driver, Trip, MaintenanceLog, FuelLog, Expense, Session }
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 let authToken =
-  typeof window !== "undefined" ? window.localStorage.getItem("transitops_auth_token") : null;
+  typeof window !== "undefined" ? window.localStorage.getItem("trackteq_auth_token") : null;
 
 export function setToken(token: string) {
   authToken = token;
   if (typeof window !== "undefined") {
-    window.localStorage.setItem("transitops_auth_token", token);
+    window.localStorage.setItem("trackteq_auth_token", token);
   }
 }
 
 export function clearToken() {
   authToken = null;
   if (typeof window !== "undefined") {
-    window.localStorage.removeItem("transitops_auth_token");
+    window.localStorage.removeItem("trackteq_auth_token");
   }
 }
 

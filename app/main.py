@@ -20,7 +20,7 @@ from app.routers.reports import router as reports_router
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="TransitOps API",
+    title="TrackTeq API",
     description="Smart Transport Operations Platform - Backend API",
     version="1.0.0",
 )
@@ -47,7 +47,7 @@ api_router.include_router(reports_router)
 
 @api_router.get("/", tags=["Health"])
 def root():
-    return {"status": "ok", "service": "TransitOps API"}
+    return {"status": "ok", "service": "TrackTeq API"}
 
 @api_router.get("/health", tags=["Health"])
 def health():

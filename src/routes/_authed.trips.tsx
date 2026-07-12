@@ -28,7 +28,7 @@ import { StateCityFilter } from "@/components/state-city-filter";
 import { cityFromLocation, stateFromLocation } from "@/lib/india";
 
 export const Route = createFileRoute("/_authed/trips")({
-  head: () => ({ meta: [{ title: "Trips — TransitOps" }] }),
+  head: () => ({ meta: [{ title: "Trips — TrackTeq" }] }),
   component: TripsPage,
 });
 
