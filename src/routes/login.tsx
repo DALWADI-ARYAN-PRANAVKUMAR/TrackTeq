@@ -28,34 +28,23 @@ const roles: { role: Role; icon: typeof Truck; blurb: string }[] = [
 function Login() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("fleet@transitops.com");
-  const [pw, setPw] = useState("fleet123");
-  const [role, setRoleState] = useState<Role>("Fleet Manager");
+  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");
+  const [role, setRole] = useState<Role>("Fleet Manager");
   const login = useStore((s) => s.login);
   const register = useStore((s) => s.register);
   const navigate = useNavigate();
 
-  const setRole = (r: Role) => {
-    setRoleState(r);
-    if (!isSignUp) {
-      if (r === "Fleet Manager") {
-        setEmail("fleet@transitops.com");
-        setPw("fleet123");
-      } else if (r === "Driver") {
-        setEmail("driver@transitops.com");
-        setPw("driver123");
-      } else if (r === "Safety Officer") {
-        setEmail("safety@transitops.com");
-        setPw("safety123");
-      } else if (r === "Financial Analyst") {
-        setEmail("finance@transitops.com");
-        setPw("finance123");
-      }
-    }
-  };
-
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim()) {
+      toast.error("Please enter your email");
+      return;
+    }
+    if (!pw.trim()) {
+      toast.error("Please enter your password");
+      return;
+    }
     if (isSignUp && !fullName.trim()) {
       toast.error("Please enter your full name");
       return;
@@ -101,9 +90,9 @@ function Login() {
             </p>
             <div className="mt-8 grid grid-cols-3 gap-3 max-w-md">
               {[
-                ["12", "VEHICLES"],
-                ["10", "DRIVERS"],
-                ["03", "ACTIVE"],
+                ["∞", "SCALABLE"],
+                ["4", "ROLES"],
+                ["24/7", "UPTIME"],
               ].map(([n, l]) => (
                 <div key={l} className="rounded-sm border border-border bg-panel p-3">
                   <div className="text-mono text-2xl font-semibold text-primary">{n}</div>
@@ -128,33 +117,35 @@ function Login() {
               {isSignUp ? "Create account" : "Access terminal"}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {isSignUp ? "Select your role and create a new account." : "Select role and sign in with your credentials."}
+              {isSignUp ? "Select your role and create a new account." : "Sign in with your email and password."}
             </p>
 
-            <div className="mt-6 grid grid-cols-2 gap-2">
-              {roles.map((r) => {
-                const Icon = r.icon;
-                const active = role === r.role;
-                return (
-                  <button
-                    type="button"
-                    key={r.role}
-                    onClick={() => setRole(r.role)}
-                    className={`flex flex-col items-start gap-1 rounded-sm border p-3 text-left transition-colors ${
-                      active
-                        ? "border-primary/60 bg-primary/10"
-                        : "border-border bg-background hover:border-primary/40"
-                    }`}
-                  >
-                    <Icon
-                      className={`h-4 w-4 ${active ? "text-primary" : "text-muted-foreground"}`}
-                    />
-                    <div className="text-xs font-semibold">{r.role}</div>
-                    <div className="text-[10px] text-muted-foreground">{r.blurb}</div>
-                  </button>
-                );
-              })}
-            </div>
+            {isSignUp && (
+              <div className="mt-6 grid grid-cols-2 gap-2">
+                {roles.map((r) => {
+                  const Icon = r.icon;
+                  const active = role === r.role;
+                  return (
+                    <button
+                      type="button"
+                      key={r.role}
+                      onClick={() => setRole(r.role)}
+                      className={`flex flex-col items-start gap-1 rounded-sm border p-3 text-left transition-colors ${
+                        active
+                          ? "border-primary/60 bg-primary/10"
+                          : "border-border bg-background hover:border-primary/40"
+                      }`}
+                    >
+                      <Icon
+                        className={`h-4 w-4 ${active ? "text-primary" : "text-muted-foreground"}`}
+                      />
+                      <div className="text-xs font-semibold">{r.role}</div>
+                      <div className="text-[10px] text-muted-foreground">{r.blurb}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             <div className="mt-6 space-y-3">
               {isSignUp && (
@@ -209,13 +200,8 @@ function Login() {
                 onClick={() => {
                   setIsSignUp(!isSignUp);
                   setFullName("");
-                  if (!isSignUp) {
-                    setEmail("");
-                    setPw("");
-                  } else {
-                    setEmail("fleet@transitops.com");
-                    setPw("fleet123");
-                  }
+                  setEmail("");
+                  setPw("");
                 }}
                 className="text-xs font-mono text-primary hover:underline"
               >

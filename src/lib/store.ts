@@ -11,14 +11,6 @@ import type {
   Session,
   TripStatus,
 } from "./types";
-import {
-  seedVehicles,
-  seedDrivers,
-  seedTrips,
-  seedMaintenance,
-  seedFuel,
-  seedExpenses,
-} from "./seed";
 import { api, clearToken } from "./api";
 
 interface State {
@@ -69,12 +61,12 @@ export const useStore = create<State>()(
   persist(
     (set, get) => ({
       session: null,
-      vehicles: seedVehicles,
-      drivers: seedDrivers,
-      trips: seedTrips,
-      maintenance: seedMaintenance,
-      fuel: seedFuel,
-      expenses: seedExpenses,
+      vehicles: [],
+      drivers: [],
+      trips: [],
+      maintenance: [],
+      fuel: [],
+      expenses: [],
       theme: "dark",
       reducedMotion: false,
 
@@ -254,6 +246,6 @@ export const useStore = create<State>()(
         get().sync();
       },
     }),
-    { name: "transitops-v2-in" },
+    { name: "transitops-v3-live" },
   ),
 );

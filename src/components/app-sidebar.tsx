@@ -36,12 +36,25 @@ const nav = [
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
+const ROLE_PERMISSIONS: Record<string, string[]> = {
+  "Fleet Manager": ["/", "/vehicles", "/drivers", "/trips", "/maintenance", "/fuel", "/reports", "/settings"],
+  "Driver": ["/", "/trips", "/fuel", "/settings"],
+  "Safety Officer": ["/", "/drivers", "/vehicles", "/settings"],
+  "Financial Analyst": ["/", "/fuel", "/reports", "/settings"],
+};
+
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const path = useRouterState({ select: (r) => r.location.pathname });
   const session = useStore((s) => s.session);
   const active = useStore((s) => s.trips.filter((t) => t.status === "Dispatched").length);
+
+  const allowedUrls = session
+    ? ROLE_PERMISSIONS[session.role] || ["/", "/settings"]
+    : ["/", "/settings"];
+
+  const filteredNav = nav.filter((item) => allowedUrls.includes(item.url));
 
   return (
     <Sidebar collapsible="icon">
@@ -64,7 +77,7 @@ export function AppSidebar() {
           <SidebarGroupLabel className="micro-label">Operations</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {nav.map((item) => (
+              {filteredNav.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={path === item.url}>
                     <Link to={item.url} className="flex items-center gap-2">

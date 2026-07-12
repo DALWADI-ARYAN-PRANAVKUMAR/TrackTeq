@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
+import { RoleGuard } from "@/components/role-guard";
 import { StatusPill } from "@/components/status-pill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +71,8 @@ const MODEL_SUGGESTIONS = [
 
 function VehiclesPage() {
   const { vehicles, addVehicle, removeVehicle } = useStore();
+  const session = useStore((s) => s.session);
+  const isFleetManager = session?.role === "Fleet Manager";
   const [q, setQ] = useState("");
   const [stateF, setStateF] = useState("all");
   const [cityF, setCityF] = useState("all");
@@ -118,7 +121,8 @@ function VehiclesPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <RoleGuard allowedRoles={["Fleet Manager", "Safety Officer"]}>
+      <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="micro-label">Registry</div>
@@ -156,106 +160,102 @@ function VehiclesPage() {
           <Button variant="outline" size="sm" onClick={() => exportCSV("vehicles.csv", filtered)}>
             <FileText className="h-3.5 w-3.5 mr-1" /> CSV
           </Button>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus className="h-3.5 w-3.5 mr-1" /> Register vehicle
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Register vehicle</DialogTitle>
-              </DialogHeader>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="micro-label">Registration</Label>
-                  <Input
-                    value={form.reg}
-                    onChange={(e) => setForm({ ...form, reg: e.target.value.toUpperCase() })}
-                    className="font-mono"
-                    placeholder="MH 12 AB 4521"
-                  />
+          {isFleetManager && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Register vehicle
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Register vehicle</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="micro-label">Registration</Label>
+                    <Input
+                      value={form.reg}
+                      onChange={(e) => setForm({ ...form, reg: e.target.value.toUpperCase() })}
+                      className="font-mono"
+                      placeholder="MH 12 AB 4521"
+                    />
+                  </div>
+                  <div>
+                    <Label className="micro-label">Name / Model</Label>
+                    <Input
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="e.g. Tata Ace Gold"
+                    />
+                  </div>
+                  <div>
+                    <Label className="micro-label">Type</Label>
+                    <Select
+                      value={form.type}
+                      onValueChange={(v) => setForm({ ...form, type: v as VehicleType })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["Van", "Truck", "Semi", "Pickup", "Refrigerated"].map((t) => (
+                          <SelectItem key={t} value={t}>
+                            {t}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="micro-label">Region (Indian State)</Label>
+                    <Select
+                      value={form.region}
+                      onValueChange={(v) => setForm({ ...form, region: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {INDIAN_STATES.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="micro-label">Capacity (kg)</Label>
+                    <Input
+                      type="number"
+                      value={form.capacityKg}
+                      onChange={(e) => setForm({ ...form, capacityKg: +e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="micro-label">Odometer (km)</Label>
+                    <Input
+                      type="number"
+                      value={form.odometer}
+                      onChange={(e) => setForm({ ...form, odometer: +e.target.value })}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="micro-label">Acquisition Cost (₹)</Label>
+                    <Input
+                      type="number"
+                      value={form.acquisitionCost}
+                      onChange={(e) => setForm({ ...form, acquisitionCost: +e.target.value })}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label className="micro-label">Name / Model</Label>
-                  <Input
-                    list="model-suggest"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="e.g. Tata Ace Gold"
-                  />
-                  <datalist id="model-suggest">
-                    {MODEL_SUGGESTIONS.map((m) => (
-                      <option key={m} value={m} />
-                    ))}
-                  </datalist>
-                </div>
-                <div>
-                  <Label className="micro-label">Type</Label>
-                  <Select
-                    value={form.type}
-                    onValueChange={(v) => setForm({ ...form, type: v as VehicleType })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["Van", "Truck", "Semi", "Pickup", "Refrigerated"].map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="micro-label">State</Label>
-                  <Select
-                    value={form.region}
-                    onValueChange={(v) => setForm({ ...form, region: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {INDIAN_STATES.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="micro-label">Capacity (kg)</Label>
-                  <Input
-                    type="number"
-                    value={form.capacityKg}
-                    onChange={(e) => setForm({ ...form, capacityKg: +e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label className="micro-label">Odometer (km)</Label>
-                  <Input
-                    type="number"
-                    value={form.odometer}
-                    onChange={(e) => setForm({ ...form, odometer: +e.target.value })}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label className="micro-label">Acquisition Cost (₹)</Label>
-                  <Input
-                    type="number"
-                    value={form.acquisitionCost}
-                    onChange={(e) => setForm({ ...form, acquisitionCost: +e.target.value })}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button onClick={submit}>Register</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                <DialogFooter>
+                  <Button onClick={submit}>Register</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
 
@@ -263,13 +263,21 @@ function VehiclesPage() {
         <table className="w-full text-sm">
           <thead className="bg-secondary/50">
             <tr className="text-left">
-              {["Reg", "Model", "Type", "State", "Capacity", "Odometer", "Cost", "Status", ""].map(
-                (h) => (
-                  <th key={h} className="px-4 py-2 micro-label">
-                    {h}
-                  </th>
-                ),
-              )}
+              {[
+                "Reg",
+                "Model",
+                "Type",
+                "State",
+                "Capacity",
+                "Odometer",
+                "Cost",
+                "Status",
+                ...(isFleetManager ? [""] : []),
+              ].map((h) => (
+                <th key={h} className="px-4 py-2 micro-label">
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -289,27 +297,29 @@ function VehiclesPage() {
                 <td className="px-4 py-2.5">
                   <StatusPill status={v.status} />
                 </td>
-                <td className="px-4 py-2.5 text-right">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={async () => {
-                      const r = await removeVehicle(v.id);
-                      if (r.ok) {
-                        toast.success("Removed");
-                      } else {
-                        toast.error(r.error!);
-                      }
-                    }}
-                  >
-                    <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
-                  </Button>
-                </td>
+                {isFleetManager && (
+                  <td className="px-4 py-2.5 text-right">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={async () => {
+                        const r = await removeVehicle(v.id);
+                        if (r.ok) {
+                          toast.success("Removed");
+                        } else {
+                          toast.error(r.error!);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                    </Button>
+                  </td>
+                )}
               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={isFleetManager ? 9 : 8} className="px-4 py-8 text-center text-sm text-muted-foreground">
                   No vehicles match your filters.
                 </td>
               </tr>
@@ -318,5 +328,6 @@ function VehiclesPage() {
         </table>
       </div>
     </div>
+    </RoleGuard>
   );
 }

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
+import { RoleGuard } from "@/components/role-guard";
 import { StatusPill } from "@/components/status-pill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,8 @@ export const Route = createFileRoute("/_authed/drivers")({
 
 function DriversPage() {
   const { drivers, addDriver, updateDriver } = useStore();
+  const session = useStore((s) => s.session);
+  const canManageDrivers = session?.role === "Fleet Manager" || session?.role === "Safety Officer";
   const [q, setQ] = useState("");
   const [stateF, setStateF] = useState("all");
   const [cityF, setCityF] = useState("all");
@@ -83,7 +86,8 @@ function DriversPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <RoleGuard allowedRoles={["Fleet Manager", "Safety Officer"]}>
+      <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="micro-label">Roster</div>
@@ -121,101 +125,103 @@ function DriversPage() {
           <Button variant="outline" size="sm" onClick={() => exportCSV("drivers.csv", filtered)}>
             <FileText className="h-3.5 w-3.5 mr-1" /> CSV
           </Button>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus className="h-3.5 w-3.5 mr-1" /> Add driver
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add driver</DialogTitle>
-              </DialogHeader>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                  <Label className="micro-label">Name</Label>
-                  <Input
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  />
+          {canManageDrivers && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Add driver
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add driver</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="micro-label">Name</Label>
+                    <Input
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="e.g. Rajesh Kumar"
+                    />
+                  </div>
+                  <div>
+                    <Label className="micro-label">Phone</Label>
+                    <Input
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                      placeholder="e.g. +91 98765 43210"
+                    />
+                  </div>
+                  <div>
+                    <Label className="micro-label">License Number</Label>
+                    <Input
+                      value={form.license}
+                      onChange={(e) => setForm({ ...form, license: e.target.value.toUpperCase() })}
+                      placeholder="DL-1420110012345"
+                    />
+                  </div>
+                  <div>
+                    <Label className="micro-label">License Category</Label>
+                    <Select
+                      value={form.licenseCategory}
+                      onValueChange={(v) => setForm({ ...form, licenseCategory: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["LMV", "HMV", "MGV", "Trailer"].map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="micro-label">License Expiry</Label>
+                    <Input
+                      type="date"
+                      value={form.licenseExpiry}
+                      onChange={(e) => setForm({ ...form, licenseExpiry: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="micro-label">State</Label>
+                    <Select
+                      value={form.region}
+                      onValueChange={(v) => setForm({ ...form, region: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {INDIAN_STATES.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="micro-label">Safety score</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={form.safetyScore}
+                      onChange={(e) => setForm({ ...form, safetyScore: +e.target.value })}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label className="micro-label">License #</Label>
-                  <Input
-                    value={form.license}
-                    onChange={(e) => setForm({ ...form, license: e.target.value })}
-                    className="font-mono"
-                    placeholder="MH14 20230011029"
-                  />
-                </div>
-                <div>
-                  <Label className="micro-label">Category</Label>
-                  <Select
-                    value={form.licenseCategory}
-                    onValueChange={(v) => setForm({ ...form, licenseCategory: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["LMV", "HMV", "HTV", "HPMV", "TRANS"].map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="micro-label">Expiry</Label>
-                  <Input
-                    type="date"
-                    value={form.licenseExpiry}
-                    onChange={(e) => setForm({ ...form, licenseExpiry: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label className="micro-label">Phone</Label>
-                  <Input
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="+91 98xxx xxxxx"
-                  />
-                </div>
-                <div>
-                  <Label className="micro-label">State</Label>
-                  <Select
-                    value={form.region}
-                    onValueChange={(v) => setForm({ ...form, region: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {INDIAN_STATES.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="micro-label">Safety score</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={form.safetyScore}
-                    onChange={(e) => setForm({ ...form, safetyScore: +e.target.value })}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button onClick={submit}>Add</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                <DialogFooter>
+                  <Button onClick={submit}>Add</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
 
@@ -280,7 +286,7 @@ function DriversPage() {
                     variant={d.status === s ? "secondary" : "ghost"}
                     size="sm"
                     className="h-7 text-[10px] font-mono uppercase"
-                    disabled={d.status === "On Trip"}
+                    disabled={!canManageDrivers || d.status === "On Trip"}
                     onClick={async () => {
                       const r = await updateDriver(d.id, { status: s });
                       if (!r.ok) toast.error(r.error!);
@@ -300,5 +306,6 @@ function DriversPage() {
         )}
       </div>
     </div>
+    </RoleGuard>
   );
 }

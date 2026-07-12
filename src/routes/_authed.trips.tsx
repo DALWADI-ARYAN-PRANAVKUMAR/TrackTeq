@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
+import { RoleGuard } from "@/components/role-guard";
 import { StatusPill } from "@/components/status-pill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,8 @@ export const Route = createFileRoute("/_authed/trips")({
 
 function TripsPage() {
   const { trips, vehicles, drivers, createTrip, setTripStatus } = useStore();
+  const session = useStore((s) => s.session);
+  const canManageTrips = session?.role === "Fleet Manager" || session?.role === "Driver";
   const [open, setOpen] = useState(false);
   const [completing, setCompleting] = useState<string | null>(null);
   const [completeData, setCompleteData] = useState({ actualKm: 0, fuelLiters: 0, revenue: 0 });
@@ -133,7 +136,8 @@ function TripsPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <RoleGuard allowedRoles={["Fleet Manager", "Driver"]}>
+      <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="micro-label">Dispatch board</div>
@@ -151,96 +155,98 @@ function TripsPage() {
             options={geoOptions}
           />
 
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus className="h-3.5 w-3.5 mr-1" /> New trip
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create trip</DialogTitle>
-              </DialogHeader>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="micro-label">Source</Label>
-                  <Input
-                    value={form.source}
-                    onChange={(e) => setForm({ ...form, source: e.target.value })}
-                  />
+          {canManageTrips && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-3.5 w-3.5 mr-1" /> New trip
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create trip</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="micro-label">Source</Label>
+                    <Input
+                      value={form.source}
+                      onChange={(e) => setForm({ ...form, source: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="micro-label">Destination</Label>
+                    <Input
+                      value={form.destination}
+                      onChange={(e) => setForm({ ...form, destination: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="micro-label">Vehicle</Label>
+                    <Select
+                      value={form.vehicleId}
+                      onValueChange={(v) => setForm({ ...form, vehicleId: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select available" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {vehicles
+                          .filter((v) => v.status === "Available")
+                          .map((v) => (
+                            <SelectItem key={v.id} value={v.id}>
+                              {v.reg} ({v.name})
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="micro-label">Driver</Label>
+                    <Select
+                      value={form.driverId}
+                      onValueChange={(v) => setForm({ ...form, driverId: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select available" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {drivers
+                          .filter((d) => d.status === "Available")
+                          .map((d) => (
+                            <SelectItem key={d.id} value={d.id}>
+                              {d.name} (Safety: {d.safetyScore})
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="micro-label">Cargo (kg)</Label>
+                    <Input
+                      type="number"
+                      value={form.cargoKg}
+                      onChange={(e) => setForm({ ...form, cargoKg: +e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="micro-label">Planned distance (km)</Label>
+                    <Input
+                      type="number"
+                      value={form.plannedKm}
+                      onChange={(e) => setForm({ ...form, plannedKm: +e.target.value })}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label className="micro-label">Destination</Label>
-                  <Input
-                    value={form.destination}
-                    onChange={(e) => setForm({ ...form, destination: e.target.value })}
-                  />
+                <div className="text-[11px] text-muted-foreground border-t border-border pt-3">
+                  System enforces: unique reg · capacity ≥ cargo · valid license · no double-booking.
                 </div>
-                <div>
-                  <Label className="micro-label">
-                    Vehicle ({availableVehicles.length} available)
-                  </Label>
-                  <Select
-                    value={form.vehicleId}
-                    onValueChange={(v) => setForm({ ...form, vehicleId: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableVehicles.map((v) => (
-                        <SelectItem key={v.id} value={v.id}>
-                          {v.reg} · {v.name} ({v.capacityKg}kg)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="micro-label">
-                    Driver ({availableDrivers.length} available)
-                  </Label>
-                  <Select
-                    value={form.driverId}
-                    onValueChange={(v) => setForm({ ...form, driverId: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableDrivers.map((d) => (
-                        <SelectItem key={d.id} value={d.id}>
-                          {d.name} · {d.licenseCategory}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="micro-label">Cargo (kg)</Label>
-                  <Input
-                    type="number"
-                    value={form.cargoKg}
-                    onChange={(e) => setForm({ ...form, cargoKg: +e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label className="micro-label">Planned distance (km)</Label>
-                  <Input
-                    type="number"
-                    value={form.plannedKm}
-                    onChange={(e) => setForm({ ...form, plannedKm: +e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="text-[11px] text-muted-foreground border-t border-border pt-3">
-                System enforces: unique reg · capacity ≥ cargo · valid license · no double-booking.
-              </div>
-              <DialogFooter>
-                <Button onClick={submit}>Create draft</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                <DialogFooter>
+                  <Button onClick={submit}>Create draft</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
 
@@ -274,50 +280,60 @@ function TripsPage() {
                     </div>
                     <div className="mt-1 text-[10px] text-muted-foreground truncate">{d?.name}</div>
                     <div className="mt-2 flex gap-1">
-                      {t.status === "Draft" && (
+                      {canManageTrips ? (
                         <>
-                          <Button
-                            size="sm"
-                            className="h-6 text-[10px] flex-1"
-                            onClick={() => doDispatch(t.id)}
-                          >
-                            <Play className="h-3 w-3 mr-1" /> Dispatch
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-6 text-[10px]"
-                            onClick={() => doCancel(t.id)}
-                          >
-                            <XCircle className="h-3 w-3" />
-                          </Button>
+                          {t.status === "Draft" && (
+                            <>
+                              <Button
+                                size="sm"
+                                className="h-6 text-[10px] flex-1"
+                                onClick={() => doDispatch(t.id)}
+                              >
+                                <Play className="h-3 w-3 mr-1" /> Dispatch
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 text-[10px]"
+                                onClick={() => doCancel(t.id)}
+                              >
+                                <XCircle className="h-3 w-3" />
+                              </Button>
+                            </>
+                          )}
+                          {t.status === "Dispatched" && (
+                            <>
+                              <Button
+                                size="sm"
+                                className="h-6 text-[10px] flex-1"
+                                onClick={() => {
+                                  setCompleting(t.id);
+                                  setCompleteData({
+                                    actualKm: t.plannedKm,
+                                    fuelLiters: Math.round(t.plannedKm / 8),
+                                    revenue: Math.round(t.plannedKm * 4),
+                                  });
+                                }}
+                              >
+                                <CheckCircle2 className="h-3 w-3 mr-1" /> Complete
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 text-[10px]"
+                                onClick={() => doCancel(t.id)}
+                              >
+                                <XCircle className="h-3 w-3" />
+                              </Button>
+                            </>
+                          )}
                         </>
-                      )}
-                      {t.status === "Dispatched" && (
-                        <>
-                          <Button
-                            size="sm"
-                            className="h-6 text-[10px] flex-1"
-                            onClick={() => {
-                              setCompleting(t.id);
-                              setCompleteData({
-                                actualKm: t.plannedKm,
-                                fuelLiters: Math.round(t.plannedKm / 8),
-                                revenue: Math.round(t.plannedKm * 4),
-                              });
-                            }}
-                          >
-                            <CheckCircle2 className="h-3 w-3 mr-1" /> Complete
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-6 text-[10px]"
-                            onClick={() => doCancel(t.id)}
-                          >
-                            <XCircle className="h-3 w-3" />
-                          </Button>
-                        </>
+                      ) : (
+                        t.status !== "Completed" && t.status !== "Cancelled" && (
+                          <div className="text-[10px] font-mono text-muted-foreground italic">
+                            Read Only
+                          </div>
+                        )
                       )}
                       {(t.status === "Completed" || t.status === "Cancelled") && t.actualKm && (
                         <div className="text-[10px] font-mono text-muted-foreground">
@@ -373,7 +389,7 @@ function TripsPage() {
         </DialogContent>
       </Dialog>
 
-      <StatusPill status="Available" className="hidden" />
     </div>
+    </RoleGuard>
   );
 }

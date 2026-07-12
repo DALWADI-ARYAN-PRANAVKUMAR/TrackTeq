@@ -2,7 +2,6 @@ import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
-import { Toaster } from "@/components/ui/sonner";
 import { MouseTracker } from "@/components/mouse-tracker";
 import { useEffect } from "react";
 import { useStore } from "@/lib/store";
@@ -50,7 +49,6 @@ function AuthedLayout() {
         </SidebarInset>
       </div>
       <MouseTracker />
-      <Toaster theme="dark" />
     </SidebarProvider>
   );
 }

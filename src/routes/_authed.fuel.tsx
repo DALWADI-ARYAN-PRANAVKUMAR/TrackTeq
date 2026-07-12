@@ -31,6 +31,8 @@ export const Route = createFileRoute("/_authed/fuel")({
 
 function FuelPage() {
   const { fuel, expenses, vehicles, maintenance, addFuel, addExpense } = useStore();
+  const session = useStore((s) => s.session);
+  const canManageFuel = session?.role === "Fleet Manager" || session?.role === "Driver";
   const [openF, setOpenF] = useState(false);
   const [openE, setOpenE] = useState(false);
   const [ff, setFF] = useState({
@@ -84,160 +86,164 @@ function FuelPage() {
           <Button variant="outline" size="sm" onClick={() => exportCSV("fuel-logs.csv", fuel)}>
             <FileText className="h-3.5 w-3.5 mr-1" /> CSV
           </Button>
-          <Dialog open={openE} onOpenChange={setOpenE}>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="outline">
-                Add expense
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add expense</DialogTitle>
-              </DialogHeader>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                  <Label className="micro-label">Vehicle</Label>
-                  <Select
-                    value={ef.vehicleId}
-                    onValueChange={(v) => setEF({ ...ef, vehicleId: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {vehicles.map((v) => (
-                        <SelectItem key={v.id} value={v.id}>
-                          {v.reg}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="micro-label">Category</Label>
-                  <Select
-                    value={ef.category}
-                    onValueChange={(v) => setEF({ ...ef, category: v as typeof ef.category })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["Toll", "Parking", "Fine", "Other"].map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="micro-label">Amount (₹)</Label>
-                  <Input
-                    type="number"
-                    value={ef.amount}
-                    onChange={(e) => setEF({ ...ef, amount: +e.target.value })}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label className="micro-label">Date</Label>
-                  <Input
-                    type="date"
-                    value={ef.date}
-                    onChange={(e) => setEF({ ...ef, date: e.target.value })}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  onClick={async () => {
-                    if (!ef.vehicleId) return toast.error("Pick vehicle");
-                    const r = await addExpense(ef);
-                    if (r.ok) {
-                      toast.success("Expense added");
-                      setOpenE(false);
-                    } else {
-                      toast.error(r.error!);
-                    }
-                  }}
-                >
-                  Add
+          {canManageFuel && (
+            <Dialog open={openE} onOpenChange={setOpenE}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline">
+                  Add expense
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Dialog open={openF} onOpenChange={setOpenF}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus className="h-3.5 w-3.5 mr-1" /> Log fuel
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Log fuel</DialogTitle>
-              </DialogHeader>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                  <Label className="micro-label">Vehicle</Label>
-                  <Select
-                    value={ff.vehicleId}
-                    onValueChange={(v) => setFF({ ...ff, vehicleId: v })}
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add expense</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <Label className="micro-label">Vehicle</Label>
+                    <Select
+                      value={ef.vehicleId}
+                      onValueChange={(v) => setEF({ ...ef, vehicleId: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {vehicles.map((v) => (
+                          <SelectItem key={v.id} value={v.id}>
+                            {v.reg}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="micro-label">Category</Label>
+                    <Select
+                      value={ef.category}
+                      onValueChange={(v) => setEF({ ...ef, category: v as typeof ef.category })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["Toll", "Parking", "Fine", "Other"].map((t) => (
+                          <SelectItem key={t} value={t}>
+                            {t}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="micro-label">Amount (₹)</Label>
+                    <Input
+                      type="number"
+                      value={ef.amount}
+                      onChange={(e) => setEF({ ...ef, amount: +e.target.value })}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="micro-label">Date</Label>
+                    <Input
+                      type="date"
+                      value={ef.date}
+                      onChange={(e) => setEF({ ...ef, date: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    onClick={async () => {
+                      if (!ef.vehicleId) return toast.error("Pick vehicle");
+                      const r = await addExpense(ef);
+                      if (r.ok) {
+                        toast.success("Expense added");
+                        setOpenE(false);
+                      } else {
+                        toast.error(r.error!);
+                      }
+                    }}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {vehicles.map((v) => (
-                        <SelectItem key={v.id} value={v.id}>
-                          {v.reg}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="micro-label">Liters</Label>
-                  <Input
-                    type="number"
-                    value={ff.liters}
-                    onChange={(e) => setFF({ ...ff, liters: +e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label className="micro-label">Cost (₹)</Label>
-                  <Input
-                    type="number"
-                    value={ff.cost}
-                    onChange={(e) => setFF({ ...ff, cost: +e.target.value })}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label className="micro-label">Date</Label>
-                  <Input
-                    type="date"
-                    value={ff.date}
-                    onChange={(e) => setFF({ ...ff, date: e.target.value })}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  onClick={async () => {
-                    if (!ff.vehicleId || !ff.liters) return toast.error("Vehicle & liters");
-                    const r = await addFuel(ff);
-                    if (r.ok) {
-                      toast.success("Fuel logged");
-                      setOpenF(false);
-                    } else {
-                      toast.error(r.error!);
-                    }
-                  }}
-                >
-                  Log
+                    Add
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+          {canManageFuel && (
+            <Dialog open={openF} onOpenChange={setOpenF}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Log fuel
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Log fuel</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <Label className="micro-label">Vehicle</Label>
+                    <Select
+                      value={ff.vehicleId}
+                      onValueChange={(v) => setFF({ ...ff, vehicleId: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {vehicles.map((v) => (
+                          <SelectItem key={v.id} value={v.id}>
+                            {v.reg}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="micro-label">Liters</Label>
+                    <Input
+                      type="number"
+                      value={ff.liters}
+                      onChange={(e) => setFF({ ...ff, liters: +e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="micro-label">Cost (₹)</Label>
+                    <Input
+                      type="number"
+                      value={ff.cost}
+                      onChange={(e) => setFF({ ...ff, cost: +e.target.value })}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="micro-label">Date</Label>
+                    <Input
+                      type="date"
+                      value={ff.date}
+                      onChange={(e) => setFF({ ...ff, date: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    onClick={async () => {
+                      if (!ff.vehicleId) return toast.error("Pick vehicle");
+                      const r = await addFuel(ff);
+                      if (r.ok) {
+                        toast.success("Fuel logged");
+                        setOpenF(false);
+                      } else {
+                        toast.error(r.error!);
+                      }
+                    }}
+                  >
+                    Log
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
 

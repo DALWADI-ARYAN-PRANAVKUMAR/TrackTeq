@@ -33,40 +33,8 @@ function Settings() {
             <span className="text-muted-foreground">Email:</span>{" "}
             <span className="font-mono">{session?.email}</span>
           </div>
-        </div>
-        <div className="mt-4">
-          <div className="micro-label mb-2">Switch role</div>
-          <div className="flex flex-wrap gap-2">
-            {roles.map((r) => (
-              <Button
-                key={r}
-                variant={session?.role === r ? "default" : "outline"}
-                size="sm"
-                onClick={async () => {
-                  let email = "fleet@transitops.com";
-                  let pass = "fleet123";
-                  if (r === "Driver") {
-                    email = "driver@transitops.com";
-                    pass = "driver123";
-                  } else if (r === "Safety Officer") {
-                    email = "safety@transitops.com";
-                    pass = "safety123";
-                  } else if (r === "Financial Analyst") {
-                    email = "finance@transitops.com";
-                    pass = "finance123";
-                  }
-
-                  const res = await login(email, pass);
-                  if (res.ok) {
-                    toast.success(`Now signed in as ${r}`);
-                  } else {
-                    toast.error(res.error || "Failed to switch role");
-                  }
-                }}
-              >
-                {r}
-              </Button>
-            ))}
+          <div>
+            <span className="text-muted-foreground">Role:</span> {session?.role}
           </div>
         </div>
       </div>
@@ -113,23 +81,6 @@ function Settings() {
         </div>
       </div>
 
-      <div className="rounded-md border border-border bg-panel p-5">
-        <div className="micro-label">Demo data</div>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Restore seeded vehicles, drivers, trips and logs to their original state.
-        </p>
-        <Button
-          variant="destructive"
-          size="sm"
-          className="mt-3"
-          onClick={() => {
-            resetDemo();
-            toast.success("Demo data reset");
-          }}
-        >
-          Reset demo data
-        </Button>
-      </div>
     </div>
   );
 }
