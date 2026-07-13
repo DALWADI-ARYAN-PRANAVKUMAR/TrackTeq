@@ -46,13 +46,21 @@ The frontend relies on the cutting-edge **TanStack Start** framework (built on t
 
 ## Getting Started
 
-### Backend Setup
-1. Open a terminal in the `TrackTeq-main` directory.
-2. Create and activate a Python virtual environment.
-3. Run `pip install -r requirements.txt`.
-4. Start the server with `uvicorn app.main:app --host 0.0.0.0 --port 8000`.
+### Local Setup
+Since Track-Teq is configured as a monorepo, you can start both the backend and frontend simultaneously with a single command.
 
-### Frontend Setup
 1. Open a terminal in the root directory.
-2. Run `npm install` to install dependencies.
-3. Start the Vite development server with `npm run dev`.
+2. Run `npm install` to install the root dependencies and frontend packages.
+3. (Optional) Set up your Python virtual environment in the `backend/` folder if you haven't already:
+   ```bash
+   cd backend
+   python -m venv venv
+   .\venv\Scripts\activate
+   pip install -r requirements.txt
+   cd ..
+   ```
+4. Start the application by running:
+   ```bash
+   npm run dev
+   ```
+This will start the FastAPI backend on port `8000` and the Vite frontend on port `8080`.
