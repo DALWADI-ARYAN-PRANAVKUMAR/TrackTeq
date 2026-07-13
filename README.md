@@ -63,4 +63,23 @@ Since Track-Teq is configured as a monorepo, you can start both the backend and 
    ```bash
    npm run dev
    ```
-This will start the FastAPI backend on port `8000` and the Vite frontend on port `8080`.
+## Vercel Deployment (Production)
+
+Because Track-Teq uses a Nitro-based server for the frontend and a Python server for the backend, they must be deployed as **two separate projects** on Vercel to work properly.
+
+### 1. Deploy the Backend
+1. Go to Vercel and create a new project by importing your GitHub repository.
+2. In the "Configure Project" section, open the **Root Directory** settings and select the `backend` folder.
+3. Keep the Framework Preset as "Other".
+4. Click **Deploy**. Vercel will detect `api/index.py` and deploy your FastAPI backend.
+5. Copy the deployed backend URL (e.g., `https://track-teq-backend.vercel.app`).
+
+### 2. Deploy the Frontend
+1. Go back to the Vercel dashboard and create *another* new project using the exact same GitHub repository.
+2. In the "Configure Project" section, open the **Root Directory** settings and select the `frontend` folder.
+3. In the **Environment Variables** section, add a new variable:
+   * **Name**: `VITE_API_URL`
+   * **Value**: *Paste the backend URL you copied in step 1*
+4. Click **Deploy**. Vercel will automatically detect TanStack Start/Vite and build your frontend!
+
+> **Database Note**: Because the current project uses a local SQLite file (`transitops.db`), your data will be frequently wiped by Vercel's Serverless Functions. For true production use, change the SQLite connection string in `backend/app/database.py` to a managed PostgreSQL database (e.g., Supabase or Neon).

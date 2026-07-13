@@ -1,3 +1,3 @@
-from backend.app.main import app
+from app.main import app
 
 # Vercel serverless function entrypoint

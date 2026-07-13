@@ -1,6 +1,6 @@
 import { Session } from "./types";
 
-const API_URL = import.meta.env?.PROD ? "/api" : "http://localhost:8000";
+const API_URL = import.meta.env?.VITE_API_URL || (import.meta.env?.PROD ? "/api" : "http://localhost:8000");
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
