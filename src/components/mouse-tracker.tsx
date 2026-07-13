@@ -16,16 +16,11 @@ export function MouseTracker() {
     if (window.matchMedia("(hover: none)").matches) return;
     setVisible(true);
 
-    let x = window.innerWidth / 2,
-      y = window.innerHeight / 2;
-    let tx = x,
-      ty = y;
+    let x = window.innerWidth / 2, y = window.innerHeight / 2;
+    let tx = x, ty = y;
     let raf = 0;
 
-    const move = (e: MouseEvent) => {
-      tx = e.clientX;
-      ty = e.clientY;
-    };
+    const move = (e: MouseEvent) => { tx = e.clientX; ty = e.clientY; };
     const loop = () => {
       x += (tx - x) * 0.22;
       y += (ty - y) * 0.22;
@@ -47,10 +42,8 @@ export function MouseTracker() {
         ref={dot}
         className="absolute h-5 w-5 rounded-full"
         style={{
-          background:
-            "radial-gradient(circle, var(--color-primary) 0%, color-mix(in oklab, var(--color-primary) 40%, transparent) 55%, transparent 75%)",
-          boxShadow:
-            "0 0 16px 4px color-mix(in oklab, var(--color-primary) 60%, transparent), 0 0 40px 8px color-mix(in oklab, var(--color-primary) 30%, transparent)",
+          background: "radial-gradient(circle, var(--color-primary) 0%, color-mix(in oklab, var(--color-primary) 40%, transparent) 55%, transparent 75%)",
+          boxShadow: "0 0 16px 4px color-mix(in oklab, var(--color-primary) 60%, transparent), 0 0 40px 8px color-mix(in oklab, var(--color-primary) 30%, transparent)",
         }}
       />
     </div>

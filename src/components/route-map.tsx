@@ -11,8 +11,7 @@ export function RouteMap() {
   const trips = useStore((s) => s.trips);
   const reducedMotion = useStore((s) => s.reducedMotion);
 
-  const W = 320,
-    H = 340;
+  const W = 320, H = 340;
   const byName = useMemo(
     () => Object.fromEntries(INDIAN_CITIES.map((c) => [c.name.toLowerCase(), c])),
     [],
@@ -46,13 +45,7 @@ export function RouteMap() {
               <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
             </radialGradient>
             <pattern id="rm-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-              <path
-                d="M 24 0 L 0 0 0 24"
-                fill="none"
-                stroke="var(--color-border)"
-                strokeWidth="0.4"
-                opacity="0.5"
-              />
+              <path d="M 24 0 L 0 0 0 24" fill="none" stroke="var(--color-border)" strokeWidth="0.4" opacity="0.5" />
             </pattern>
           </defs>
 
@@ -73,21 +66,9 @@ export function RouteMap() {
             const on = activeCities.has(c.name);
             return (
               <g key={c.name}>
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={on ? 3.5 : 1.6}
-                  fill={on ? "var(--color-primary)" : "var(--color-muted-foreground)"}
-                  opacity={on ? 1 : 0.5}
-                />
+                <circle cx={x} cy={y} r={on ? 3.5 : 1.6} fill={on ? "var(--color-primary)" : "var(--color-muted-foreground)"} opacity={on ? 1 : 0.5} />
                 {on && (
-                  <text
-                    x={x + 6}
-                    y={y + 3}
-                    fontSize="8"
-                    fill="var(--color-foreground)"
-                    className="font-mono"
-                  >
+                  <text x={x + 6} y={y + 3} fontSize="8" fill="var(--color-foreground)" className="font-mono">
                     {c.name}
                   </text>
                 )}
@@ -99,39 +80,21 @@ export function RouteMap() {
           {active.map((r, i) => (
             <g key={r.code}>
               <line
-                x1={r.p1.x}
-                y1={r.p1.y}
-                x2={r.p2.x}
-                y2={r.p2.y}
-                stroke="var(--color-primary)"
-                strokeWidth="1.4"
-                strokeDasharray="4 4"
-                opacity="0.85"
+                x1={r.p1.x} y1={r.p1.y} x2={r.p2.x} y2={r.p2.y}
+                stroke="var(--color-primary)" strokeWidth="1.4"
+                strokeDasharray="4 4" opacity="0.85"
               >
                 {!reducedMotion && (
-                  <animate
-                    attributeName="stroke-dashoffset"
-                    from="0"
-                    to="-16"
-                    dur="1.4s"
-                    repeatCount="indefinite"
-                  />
+                  <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="1.4s" repeatCount="indefinite" />
                 )}
               </line>
               <circle cx={r.p1.x} cy={r.p1.y} r="10" fill="url(#rm-glow)" />
               <circle cx={r.p2.x} cy={r.p2.y} r="10" fill="url(#rm-glow)" />
-              <text
-                x={(r.p1.x + r.p2.x) / 2}
-                y={(r.p1.y + r.p2.y) / 2 - 4}
-                fontSize="7"
-                fill="var(--color-accent)"
-                textAnchor="middle"
-                className="font-mono"
-              >
+              <text x={(r.p1.x + r.p2.x) / 2} y={(r.p1.y + r.p2.y) / 2 - 4} fontSize="7" fill="var(--color-accent)" textAnchor="middle" className="font-mono">
                 {r.code}
               </text>
               {i === 0 && (
-                <title>{`${r.s.name} ↔ ${r.d.name}`}</title>
+                <title>{r.s.name} ↔ {r.d.name}</title>
               )}
             </g>
           ))}
@@ -139,10 +102,7 @@ export function RouteMap() {
       </div>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {active.slice(0, 6).map((r) => (
-          <span
-            key={r.code}
-            className="inline-flex items-center gap-1 rounded-sm border border-border bg-background px-2 py-0.5 text-[10px] font-mono"
-          >
+          <span key={r.code} className="inline-flex items-center gap-1 rounded-sm border border-border bg-background px-2 py-0.5 text-[10px] font-mono">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
             {r.s.name} ↔ {r.d.name}
           </span>

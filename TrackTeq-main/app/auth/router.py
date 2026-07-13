@@ -29,6 +29,9 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
     return user
 
 
+from datetime import datetime
+from app.models.audit import AuditLog
+
 @router.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
@@ -46,6 +49,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if not user.is_active:
         raise HTTPException(status_code=403, detail="User account is inactive.")
 
+    # Create Audit Log
+    audit = AuditLog(user_id=user.id, login_time=datetime.utcnow(), is_active=True)
+    db.add(audit)
+    db.commit()
+
     access_token = create_access_token(data={"sub": user.id, "role": user.role.value})
     return Token(access_token=access_token, user=user)
 
@@ -59,8 +67,30 @@ def login_json(payload: LoginRequest, db: Session = Depends(get_db)):
     if not user.is_active:
         raise HTTPException(status_code=403, detail="User account is inactive.")
 
+    # Create Audit Log
+    audit = AuditLog(user_id=user.id, login_time=datetime.utcnow(), is_active=True)
+    db.add(audit)
+    db.commit()
+
     access_token = create_access_token(data={"sub": user.id, "role": user.role.value})
     return Token(access_token=access_token, user=user)
+
+
+@router.post("/logout")
+def logout(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Logout endpoint to mark the user's active session as inactive and set logout_time."""
+    # Find the most recent active session
+    audit = db.query(AuditLog).filter(
+        AuditLog.user_id == current_user.id,
+        AuditLog.is_active == True
+    ).order_by(AuditLog.login_time.desc()).first()
+    
+    if audit:
+        audit.is_active = False
+        audit.logout_time = datetime.utcnow()
+        db.commit()
+    
+    return {"status": "ok", "message": "Logged out successfully"}
 
 
 @router.get("/me", response_model=UserOut)

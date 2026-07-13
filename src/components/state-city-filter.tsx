@@ -1,11 +1,5 @@
 import { useMemo } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { INDIAN_STATES } from "@/lib/india";
 
 /**
@@ -14,11 +8,7 @@ import { INDIAN_STATES } from "@/lib/india";
  * when a state is selected).
  */
 export function StateCityFilter({
-  state,
-  city,
-  onState,
-  onCity,
-  options,
+  state, city, onState, onCity, options,
 }: {
   state: string;
   city: string;
@@ -39,36 +29,18 @@ export function StateCityFilter({
 
   return (
     <div className="flex gap-2">
-      <Select
-        value={state}
-        onValueChange={(v) => {
-          onState(v);
-          onCity("all");
-        }}
-      >
-        <SelectTrigger className="w-[160px] h-9">
-          <SelectValue placeholder="State" />
-        </SelectTrigger>
+      <Select value={state} onValueChange={(v) => { onState(v); onCity("all"); }}>
+        <SelectTrigger className="w-[160px] h-9"><SelectValue placeholder="State" /></SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All states</SelectItem>
-          {INDIAN_STATES.map((s) => (
-            <SelectItem key={s} value={s}>
-              {s}
-            </SelectItem>
-          ))}
+          {INDIAN_STATES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
         </SelectContent>
       </Select>
       <Select value={city} onValueChange={onCity} disabled={cities.length === 0}>
-        <SelectTrigger className="w-[160px] h-9">
-          <SelectValue placeholder="City" />
-        </SelectTrigger>
+        <SelectTrigger className="w-[160px] h-9"><SelectValue placeholder="City" /></SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All cities</SelectItem>
-          {cities.map((c) => (
-            <SelectItem key={c} value={c}>
-              {c}
-            </SelectItem>
-          ))}
+          {cities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
         </SelectContent>
       </Select>
     </div>

@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Search, LogOut, Sun, Moon } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
@@ -67,34 +59,14 @@ export function AppHeader() {
           <kbd className="ml-6 rounded border border-border px-1 font-mono text-[10px]">⌘K</kbd>
         </button>
         <div className="hidden lg:flex items-center gap-3 border-l border-border pl-3 text-[11px] font-mono">
-          <span>
-            <span className="text-muted-foreground">ACTIVE</span>{" "}
-            <span className="text-primary">{active}</span>
-          </span>
-          <span>
-            <span className="text-muted-foreground">SHOP</span>{" "}
-            <span className="text-accent">{inShop}</span>
-          </span>
-          <span>
-            <span className="text-muted-foreground">EXP</span>{" "}
-            <span className="text-warn">{expiring}</span>
-          </span>
+          <span><span className="text-muted-foreground">ACTIVE</span> <span className="text-primary">{active}</span></span>
+          <span><span className="text-muted-foreground">SHOP</span> <span className="text-accent">{inShop}</span></span>
+          <span><span className="text-muted-foreground">EXP</span> <span className="text-warn">{expiring}</span></span>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
+        <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            logout();
-            navigate({ to: "/login" });
-          }}
-        >
+        <Button variant="ghost" size="icon" onClick={() => { logout(); navigate({ to: "/login" }); }}>
           <LogOut className="h-4 w-4" />
         </Button>
       </div>
@@ -105,50 +77,26 @@ export function AppHeader() {
           <CommandEmpty>No results.</CommandEmpty>
           <CommandGroup heading="Navigate">
             {[
-              ["Dashboard", "/"],
-              ["Vehicles", "/vehicles"],
-              ["Drivers", "/drivers"],
-              ["Trips", "/trips"],
-              ["Maintenance", "/maintenance"],
-              ["Fuel & Expenses", "/fuel"],
-              ["Reports", "/reports"],
-              ["Settings", "/settings"],
+              ["Dashboard", "/"], ["Vehicles", "/vehicles"], ["Drivers", "/drivers"],
+              ["Trips", "/trips"], ["Maintenance", "/maintenance"], ["Fuel & Expenses", "/fuel"],
+              ["Reports", "/reports"], ["Settings", "/settings"],
             ].map(([label, url]) => (
-              <CommandItem
-                key={url}
-                onSelect={() => {
-                  setOpen(false);
-                  navigate({ to: url });
-                }}
-              >
+              <CommandItem key={url} onSelect={() => { setOpen(false); navigate({ to: url }); }}>
                 {label}
               </CommandItem>
             ))}
           </CommandGroup>
           <CommandGroup heading="Vehicles">
             {vehicles.slice(0, 8).map((v) => (
-              <CommandItem
-                key={v.id}
-                onSelect={() => {
-                  setOpen(false);
-                  navigate({ to: "/vehicles" });
-                }}
-              >
+              <CommandItem key={v.id} onSelect={() => { setOpen(false); navigate({ to: "/vehicles" }); }}>
                 <span className="font-mono">{v.reg}</span> — {v.name}
               </CommandItem>
             ))}
           </CommandGroup>
           <CommandGroup heading="Drivers">
             {drivers.slice(0, 8).map((d) => (
-              <CommandItem
-                key={d.id}
-                onSelect={() => {
-                  setOpen(false);
-                  navigate({ to: "/drivers" });
-                }}
-              >
-                {d.name}{" "}
-                <span className="ml-2 font-mono text-xs text-muted-foreground">{d.license}</span>
+              <CommandItem key={d.id} onSelect={() => { setOpen(false); navigate({ to: "/drivers" }); }}>
+                {d.name} <span className="ml-2 font-mono text-xs text-muted-foreground">{d.license}</span>
               </CommandItem>
             ))}
           </CommandGroup>

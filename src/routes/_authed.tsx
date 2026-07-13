@@ -2,6 +2,7 @@ import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
+import { Toaster } from "@/components/ui/sonner";
 import { MouseTracker } from "@/components/mouse-tracker";
 import { useEffect } from "react";
 import { useStore } from "@/lib/store";
@@ -9,8 +10,14 @@ import { useStore } from "@/lib/store";
 export const Route = createFileRoute("/_authed")({
   beforeLoad: () => {
     if (typeof window !== "undefined") {
-      const session = useStore.getState().session;
-      if (!session) throw redirect({ to: "/login" });
+      try {
+        const raw = window.localStorage.getItem("transitops-v3");
+        const state = raw ? JSON.parse(raw).state : null;
+        if (!state?.session) throw redirect({ to: "/login" });
+      } catch (e) {
+        if ((e as { isRedirect?: boolean }).isRedirect) throw e;
+        throw redirect({ to: "/login" });
+      }
     }
   },
   component: AuthedLayout,
@@ -19,14 +26,11 @@ export const Route = createFileRoute("/_authed")({
 function AuthedLayout() {
   const theme = useStore((s) => s.theme);
   const reducedMotion = useStore((s) => s.reducedMotion);
-  const sync = useStore((s) => s.sync);
-  const session = useStore((s) => s.session);
+  const initStore = useStore((s) => s.initStore);
 
   useEffect(() => {
-    if (session) {
-      sync();
-    }
-  }, [session, sync]);
+    initStore();
+  }, [initStore]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -49,6 +53,7 @@ function AuthedLayout() {
         </SidebarInset>
       </div>
       <MouseTracker />
+      <Toaster theme="dark" />
     </SidebarProvider>
   );
 }

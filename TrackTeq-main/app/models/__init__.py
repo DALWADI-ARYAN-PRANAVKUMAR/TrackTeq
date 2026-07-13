@@ -4,6 +4,7 @@ from app.models.driver import Driver, DriverStatus
 from app.models.trip import Trip, TripStatus
 from app.models.maintenance import MaintenanceLog, MaintenanceStatus
 from app.models.fuel_expense import FuelLog, Expense, ExpenseType
+from app.models.audit import AuditLog
 
 __all__ = [
     "User", "RoleName",
@@ -12,4 +13,5 @@ __all__ = [
     "Trip", "TripStatus",
     "MaintenanceLog", "MaintenanceStatus",
     "FuelLog", "Expense", "ExpenseType",
+    "AuditLog",
 ]

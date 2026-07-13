@@ -1,7 +1,7 @@
 export type VehicleStatus = "Available" | "On Trip" | "In Shop" | "Retired";
 export type DriverStatus = "Available" | "On Trip" | "Off Duty" | "Suspended";
 export type TripStatus = "Draft" | "Dispatched" | "Completed" | "Cancelled";
-export type Role = "Fleet Manager" | "Driver" | "Safety Officer" | "Financial Analyst";
+export type Role = "Fleet Manager" | "Driver" | "Safety Officer" | "Financial Analyst" | "Admin";
 export type VehicleType = "Van" | "Truck" | "Semi" | "Pickup" | "Refrigerated";
 
 export interface Vehicle {
@@ -81,3 +81,25 @@ export interface Session {
   name: string;
   email: string;
 }
+
+export interface AuditLog {
+  id: string;
+  user_id: string;
+  user_name: string;
+  email: string;
+  role: string;
+  joined: string;
+  login_time: string;
+  logout_time: string | null;
+  is_active: boolean;
+}
+
+export interface AuditStats {
+  total_users: number;
+  fleet_managers: number;
+  drivers: number;
+  safety_officers: number;
+  financial_analysts: number;
+  admins: number;
+}
+

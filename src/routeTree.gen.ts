@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed.index'
@@ -19,7 +20,13 @@ import { Route as AuthedReportsRouteImport } from './routes/_authed.reports'
 import { Route as AuthedMaintenanceRouteImport } from './routes/_authed.maintenance'
 import { Route as AuthedFuelRouteImport } from './routes/_authed.fuel'
 import { Route as AuthedDriversRouteImport } from './routes/_authed.drivers'
+import { Route as AuthedAuditRouteImport } from './routes/_authed.audit'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -69,10 +76,17 @@ const AuthedDriversRoute = AuthedDriversRouteImport.update({
   path: '/drivers',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedAuditRoute = AuthedAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AuthedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/audit': typeof AuthedAuditRoute
   '/drivers': typeof AuthedDriversRoute
   '/fuel': typeof AuthedFuelRoute
   '/maintenance': typeof AuthedMaintenanceRoute
@@ -83,6 +97,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/audit': typeof AuthedAuditRoute
   '/drivers': typeof AuthedDriversRoute
   '/fuel': typeof AuthedFuelRoute
   '/maintenance': typeof AuthedMaintenanceRoute
@@ -96,6 +112,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/_authed/audit': typeof AuthedAuditRoute
   '/_authed/drivers': typeof AuthedDriversRoute
   '/_authed/fuel': typeof AuthedFuelRoute
   '/_authed/maintenance': typeof AuthedMaintenanceRoute
@@ -110,6 +128,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/signup'
+    | '/audit'
     | '/drivers'
     | '/fuel'
     | '/maintenance'
@@ -120,6 +140,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/signup'
+    | '/audit'
     | '/drivers'
     | '/fuel'
     | '/maintenance'
@@ -132,6 +154,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authed'
     | '/login'
+    | '/signup'
+    | '/_authed/audit'
     | '/_authed/drivers'
     | '/_authed/fuel'
     | '/_authed/maintenance'
@@ -145,10 +169,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -219,10 +251,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedDriversRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/audit': {
+      id: '/_authed/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuthedAuditRouteImport
+      parentRoute: typeof AuthedRoute
+    }
   }
 }
 
 interface AuthedRouteChildren {
+  AuthedAuditRoute: typeof AuthedAuditRoute
   AuthedDriversRoute: typeof AuthedDriversRoute
   AuthedFuelRoute: typeof AuthedFuelRoute
   AuthedMaintenanceRoute: typeof AuthedMaintenanceRoute
@@ -234,6 +274,7 @@ interface AuthedRouteChildren {
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedAuditRoute: AuthedAuditRoute,
   AuthedDriversRoute: AuthedDriversRoute,
   AuthedFuelRoute: AuthedFuelRoute,
   AuthedMaintenanceRoute: AuthedMaintenanceRoute,
@@ -250,6 +291,7 @@ const AuthedRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

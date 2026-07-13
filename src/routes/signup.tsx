@@ -1,41 +1,49 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
+import type { Role } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Radio } from "lucide-react";
+import { Radio, Truck, ShieldCheck, Wallet, User } from "lucide-react";
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Track-Teq — Sign in" },
-      { name: "description", content: "Sign in to the Track-Teq fleet operations terminal." },
+      { title: "Track-Teq — Create Account" },
+      { name: "description", content: "Create an account in the Track-Teq fleet operations terminal." },
     ],
   }),
-  component: Login,
+  component: Signup,
 });
 
+const roles: { role: Role; icon: typeof Truck; blurb: string }[] = [
+  { role: "Fleet Manager", icon: Truck, blurb: "Full fleet & maintenance access" },
+  { role: "Driver", icon: User, blurb: "Trip creation & active deliveries" },
+  { role: "Safety Officer", icon: ShieldCheck, blurb: "Driver compliance & safety" },
+  { role: "Financial Analyst", icon: Wallet, blurb: "Costs, fuel & profitability" },
+];
 
-
-function Login() {
-  const [email, setEmail] = useState("fleet@transitops.com");
+function Signup() {
+  const [name, setName] = useState("Jane Doe");
+  const [email, setEmail] = useState("jane@transitops.com");
   const [pw, setPw] = useState("fleet123");
+  const [role, setRole] = useState<Role>("Fleet Manager");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const login = useStore((s) => s.login);
+  const register = useStore((s) => s.register);
   const navigate = useNavigate();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const res = await login(email, pw);
+    const res = await register(name, email, pw, role);
     setLoading(false);
     if (res.ok) {
       navigate({ to: "/" });
     } else {
-      setError(res.error || "Login failed");
+      setError(res.error || "Registration failed");
     }
   };
 
@@ -84,11 +92,38 @@ function Login() {
 
         <div className="flex items-center">
           <form onSubmit={submit} className="w-full rounded-sm border border-border bg-panel p-6 md:p-8 shadow-2xl">
-            <div className="micro-label">Authentication</div>
-            <h2 className="mt-1 font-display text-2xl font-semibold">Access terminal</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Sign in with your credentials.</p>
+            <div className="micro-label">Registration</div>
+            <h2 className="mt-1 font-display text-2xl font-semibold">Create account</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Select role and register your credentials.</p>
+
+            <div className="mt-6 grid grid-cols-2 gap-2">
+              {roles.map((r) => {
+                const Icon = r.icon;
+                const active = role === r.role;
+                return (
+                  <button
+                    type="button"
+                    key={r.role}
+                    onClick={() => setRole(r.role)}
+                    className={`flex flex-col items-start gap-1 rounded-sm border p-3 text-left transition-colors ${
+                      active
+                        ? "border-primary/60 bg-primary/10"
+                        : "border-border bg-background hover:border-primary/40"
+                    }`}
+                  >
+                    <Icon className={`h-4 w-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                    <div className="text-xs font-semibold">{r.role}</div>
+                    <div className="text-[10px] text-muted-foreground">{r.blurb}</div>
+                  </button>
+                );
+              })}
+            </div>
 
             <div className="mt-6 space-y-3">
+              <div>
+                <Label htmlFor="name" className="micro-label">Full Name</Label>
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 font-mono" />
+              </div>
               <div>
                 <Label htmlFor="email" className="micro-label">Email</Label>
                 <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 font-mono" />
@@ -102,14 +137,13 @@ function Login() {
             {error && <div className="mt-4 text-xs font-mono text-destructive bg-destructive/10 p-2 rounded border border-destructive/20">{error}</div>}
 
             <Button type="submit" disabled={loading} className="mt-6 w-full h-11 font-mono uppercase tracking-widest text-xs">
-              {loading ? "Authenticating..." : "Enter terminal →"}
+              {loading ? "Registering..." : "Create account →"}
             </Button>
             <div className="mt-4 flex items-center justify-between">
               <div className="text-[10px] font-mono text-muted-foreground">
-                DEMO MODE · any credentials accepted
               </div>
-              <Link to="/signup" className="text-xs text-primary hover:underline">
-                Create account
+              <Link to="/login" className="text-xs text-primary hover:underline">
+                Sign in instead
               </Link>
             </div>
           </form>

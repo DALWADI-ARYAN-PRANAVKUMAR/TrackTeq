@@ -1,27 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard,
-  Truck,
-  Users,
-  Route as RouteIcon,
-  Wrench,
-  Fuel,
-  BarChart3,
-  Settings,
-  Radio,
+  LayoutDashboard, Truck, Users, Route as RouteIcon, Wrench, Fuel, BarChart3, Settings, Radio,
+  ShieldAlert
 } from "lucide-react";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarFooter,
-  useSidebar,
+  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
+  SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, useSidebar,
 } from "@/components/ui/sidebar";
 import { useStore } from "@/lib/store";
 
@@ -33,14 +17,16 @@ const nav = [
   { title: "Maintenance", url: "/maintenance", icon: Wrench },
   { title: "Fuel & Expenses", url: "/fuel", icon: Fuel },
   { title: "Reports", url: "/reports", icon: BarChart3 },
+  { title: "Audit Logs", url: "/audit", icon: ShieldAlert },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
-const ROLE_PERMISSIONS: Record<string, string[]> = {
-  "Fleet Manager": ["/", "/vehicles", "/drivers", "/trips", "/maintenance", "/fuel", "/reports", "/settings"],
-  "Driver": ["/", "/trips", "/fuel", "/settings"],
-  "Safety Officer": ["/", "/drivers", "/vehicles", "/settings"],
-  "Financial Analyst": ["/", "/fuel", "/reports", "/settings"],
+const roleNav: Record<string, string[]> = {
+  "Fleet Manager": ["Dashboard", "Vehicles", "Maintenance", "Settings"],
+  "Driver": ["Dashboard", "Trips", "Settings"],
+  "Safety Officer": ["Dashboard", "Drivers", "Settings"],
+  "Financial Analyst": ["Dashboard", "Fuel & Expenses", "Reports", "Settings"],
+  "Admin": ["Dashboard", "Vehicles", "Drivers", "Trips", "Maintenance", "Fuel & Expenses", "Reports", "Audit Logs", "Settings"]
 };
 
 export function AppSidebar() {
@@ -50,11 +36,7 @@ export function AppSidebar() {
   const session = useStore((s) => s.session);
   const active = useStore((s) => s.trips.filter((t) => t.status === "Dispatched").length);
 
-  const allowedUrls = session
-    ? ROLE_PERMISSIONS[session.role] || ["/", "/settings"]
-    : ["/", "/settings"];
-
-  const filteredNav = nav.filter((item) => allowedUrls.includes(item.url));
+  const allowedNav = session?.role ? nav.filter((item) => roleNav[session.role]?.includes(item.title)) : [];
 
   return (
     <Sidebar collapsible="icon">
@@ -66,7 +48,7 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div className="flex flex-col leading-tight">
-              <span className="font-display text-sm font-semibold tracking-tight">TRACKTEQ</span>
+              <span className="font-display text-sm font-semibold tracking-tight">TRACK-TEQ</span>
               <span className="micro-label text-[9px]">FLEET // OPS TERMINAL</span>
             </div>
           )}
@@ -77,7 +59,7 @@ export function AppSidebar() {
           <SidebarGroupLabel className="micro-label">Operations</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {filteredNav.map((item) => (
+              {allowedNav.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={path === item.url}>
                     <Link to={item.url} className="flex items-center gap-2">
@@ -96,9 +78,7 @@ export function AppSidebar() {
           <div className="px-2 py-1">
             <div className="micro-label">Active Dispatch</div>
             <div className="mt-1 flex items-baseline justify-between">
-              <span className="font-mono text-2xl font-semibold text-primary">
-                {String(active).padStart(2, "0")}
-              </span>
+              <span className="font-mono text-2xl font-semibold text-primary">{String(active).padStart(2, "0")}</span>
               <span className="micro-label">LIVE</span>
             </div>
             <div className="mt-2 border-t border-sidebar-border pt-2">

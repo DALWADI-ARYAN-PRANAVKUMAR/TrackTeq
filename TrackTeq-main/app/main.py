@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
@@ -15,13 +15,13 @@ from app.routers.maintenance import router as maintenance_router
 from app.routers.fuel_expense import router as fuel_expense_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.reports import router as reports_router
-from app.routers.locations import router as locations_router
+from app.routers.audit import router as audit_router
 
 # Create tables (hackathon-speed: no Alembic migration needed to get started)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="Trackteq API",
+    title="Track-Teq API",
     description="Smart Transport Operations Platform - Backend API",
     version="1.0.0",
 )
@@ -34,26 +34,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-api_router = APIRouter(prefix="/api")
-api_router.include_router(auth_router)
-api_router.include_router(vehicles_router)
-api_router.include_router(drivers_router)
-api_router.include_router(trips_router)
-api_router.include_router(maintenance_router)
-api_router.include_router(fuel_expense_router)
-api_router.include_router(dashboard_router)
-api_router.include_router(reports_router)
-api_router.include_router(locations_router)
+app.include_router(auth_router)
+app.include_router(vehicles_router)
+app.include_router(drivers_router)
+app.include_router(trips_router)
+app.include_router(maintenance_router)
+app.include_router(fuel_expense_router)
+app.include_router(dashboard_router)
+app.include_router(reports_router)
+app.include_router(audit_router)
 
 
-@api_router.get("/", tags=["Health"])
+@app.get("/", tags=["Health"])
 def root():
-    return {"status": "ok", "service": "Trackteq API"}
+    return {"status": "ok", "service": "Track-Teq API"}
 
 
-@api_router.get("/health", tags=["Health"])
+@app.get("/health", tags=["Health"])
 def health():
     return {"status": "healthy"}
-
-
-app.include_router(api_router)

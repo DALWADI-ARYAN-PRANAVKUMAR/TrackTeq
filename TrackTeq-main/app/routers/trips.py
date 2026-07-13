@@ -56,12 +56,6 @@ def create_trip(
     db: Session = Depends(get_db),
     current_user: User = Depends(WRITE_ROLES),
 ):
-    from app.services.maps import get_driving_distance_km
-
-    # Calculate real distance using OpenStreetMap/OSRM if available.
-    real_distance = get_driving_distance_km(payload.source, payload.destination)
-    final_distance = real_distance if real_distance is not None else payload.planned_distance
-
     # Validate as a Draft — full re-validation happens again at dispatch time
     validate_trip_creation(db, payload.vehicle_id, payload.driver_id, payload.cargo_weight)
 
@@ -71,7 +65,7 @@ def create_trip(
         vehicle_id=payload.vehicle_id,
         driver_id=payload.driver_id,
         cargo_weight=payload.cargo_weight,
-        planned_distance=final_distance,
+        planned_distance=payload.planned_distance,
         revenue=payload.revenue or 0.0,
         status=TripStatus.DRAFT,
         created_by=current_user.id,

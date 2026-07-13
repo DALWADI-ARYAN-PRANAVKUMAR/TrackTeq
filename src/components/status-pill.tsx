@@ -2,15 +2,13 @@ import { cn } from "@/lib/utils";
 
 const map: Record<string, string> = {
   Available: "text-primary bg-primary/10 border-primary/30",
-  "On Trip":
-    "text-[oklch(0.72_0.15_220)] bg-[oklch(0.72_0.15_220)]/10 border-[oklch(0.72_0.15_220)]/30",
+  "On Trip": "text-[oklch(0.72_0.15_220)] bg-[oklch(0.72_0.15_220)]/10 border-[oklch(0.72_0.15_220)]/30",
   "In Shop": "text-accent bg-accent/10 border-accent/30",
   Retired: "text-muted-foreground bg-muted border-border",
   "Off Duty": "text-muted-foreground bg-muted border-border",
   Suspended: "text-destructive bg-destructive/10 border-destructive/30",
   Draft: "text-muted-foreground bg-muted border-border",
-  Dispatched:
-    "text-[oklch(0.72_0.15_220)] bg-[oklch(0.72_0.15_220)]/10 border-[oklch(0.72_0.15_220)]/30",
+  Dispatched: "text-[oklch(0.72_0.15_220)] bg-[oklch(0.72_0.15_220)]/10 border-[oklch(0.72_0.15_220)]/30",
   Completed: "text-primary bg-primary/10 border-primary/30",
   Cancelled: "text-destructive bg-destructive/10 border-destructive/30",
 };
